@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Role of TVE in Addressing Skills Gaps</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0F2438;
+    --bg-deep-2:#132C43;
+    --bg-paper:#F3F1EA;
+    --bg-paper-2:#EAE7DD;
+    --ink:#16232E;
+    --ink-soft:#4A5966;
+    --line:#C7D0D6;
+    --line-deep:rgba(200,220,230,.22);
+    --teal:#3E7C74;
+    --amber:#E0932D;
+    --amber-ink:#7A4E10;
+    --white:#FFFFFF;
+    --font-display:'Space Grotesk',system-ui,-apple-system,Segoe UI,sans-serif;
+    --font-body:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  }
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ }
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;background:var(--bg-deep);overflow:hidden;}
+  body{
+    font-family:var(--font-body);
+    color:var(--ink);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ---------- deck shell ---------- */
+  .deck{
+    position:relative;
+    width:100vw;
+    height:100vh;
+    height:100dvh;
+    overflow:hidden;
+  }
+  .slide{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:clamp(28px,6vw,88px);
+    opacity:0;
+    visibility:hidden;
+    transform:translateX(24px);
+    transition:opacity .35s ease, transform .35s ease;
+    background:var(--bg-paper);
+    overflow-y:auto;
+  }
+  .slide.active{
+    opacity:1;
+    visibility:visible;
+    transform:translateX(0);
+    z-index:2;
+  }
+  .slide.dark{ background:radial-gradient(circle at 15% 10%, var(--bg-deep-2), var(--bg-deep) 65%); color:#EAF1F5; }
+  .slide.dark .eyebrow{ color:var(--amber); }
+  .slide.dark .rule{ background:var(--line-deep); }
+
+  /* blueprint grid texture on dark slides */
+  .slide.dark::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(var(--line-deep) 1px, transparent 1px),
+      linear-gradient(90deg, var(--line-deep) 1px, transparent 1px);
+    background-size:44px 44px;
+    opacity:.5;
+    pointer-events:none;
+  }
+  .slide.dark .content{ position:relative; z-index:1; }
+
+  .content{ max-width:1080px; width:100%; margin:0 auto; }
+
+  /* corner bracket motif */
+  .bracket{position:absolute; width:22px; height:22px; opacity:.55;}
+  .slide.dark .bracket{border-color:var(--amber);}
+  .slide:not(.dark) .bracket{border-color:var(--teal);}
+  .bracket.tl{top:20px; left:20px; border-top:2px solid; border-left:2px solid;}
+  .bracket.br{bottom:20px; right:20px; border-bottom:2px solid; border-right:2px solid;}
+
+  /* ---------- typography ---------- */
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:.78rem;
+    letter-spacing:.08em;
+    color:var(--teal);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:clamp(2rem,5vw,3.6rem);
+    line-height:1.06;
+    margin:0 0 18px;
+    letter-spacing:-.01em;
+  }
+  h2{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:clamp(1.5rem,3.4vw,2.4rem);
+    line-height:1.12;
+    margin:0 0 22px;
+    letter-spacing:-.005em;
+  }
+  h3{
+    font-family:var(--font-display);
+    font-weight:600;
+    font-size:1.15rem;
+    margin:0 0 8px;
+  }
+  p{ font-size:clamp(1rem,1.3vw,1.15rem); line-height:1.6; color:var(--ink-soft); margin:0 0 14px;}
+  .slide.dark p{ color:#C7D6DE; }
+  .lede{ font-size:clamp(1.1rem,2vw,1.4rem); line-height:1.5; }
+  .rule{ height:1px; background:var(--line); border:0; margin:22px 0; width:100%; }
+  .mono-tag{
+    display:inline-block;
+    font-family:var(--font-mono);
+    font-size:.72rem;
+    letter-spacing:.06em;
+    padding:3px 9px;
+    border:1px solid currentColor;
+    color:var(--teal);
+  }
+  .slide.dark .mono-tag{ color:var(--amber); }
+
+  /* ---------- reveal / pop animation ---------- */
+  .pop{ opacity:0; transform:scale(.86); }
+  .slide.active .pop{
+    animation:popIn .55s cubic-bezier(.2,1.4,.4,1) forwards;
+  }
+  .slide.active .pop:nth-child(1){animation-delay:.05s;}
+  .slide.active .pop:nth-child(2){animation-delay:.14s;}
+  .slide.active .pop:nth-child(3){animation-delay:.23s;}
+  .slide.active .pop:nth-child(4){animation-delay:.32s;}
+  .slide.active .pop:nth-child(5){animation-delay:.41s;}
+  .slide.active .pop:nth-child(6){animation-delay:.50s;}
+  .slide.active .pop:nth-child(7){animation-delay:.59s;}
+  .slide.active .pop:nth-child(8){animation-delay:.68s;}
+  @keyframes popIn{
+    0%{ opacity:0; transform:scale(.82); }
+    65%{ opacity:1; transform:scale(1.045); }
+    100%{ opacity:1; transform:scale(1); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .pop, .slide{ animation:none !important; transition:opacity .2s linear !important; transform:none !important; }
+  }
+
+  /* ---------- grids / cards (flat spec-panel style, no drop shadows) ---------- */
+  .grid{ display:grid; gap:16px; }
+  .grid.cols-2{ grid-template-columns:repeat(2,1fr); }
+  .grid.cols-3{ grid-template-columns:repeat(3,1fr); }
+  @media (max-width: 820px){
+    .grid.cols-2, .grid.cols-3{ grid-template-columns:1fr; }
+  }
+  .panel{
+    border:1px solid var(--line);
+    padding:16px 18px;
+    position:relative;
+  }
+  .slide.dark .panel{ border-color:var(--line-deep); }
+  .panel .num{
+    font-family:var(--font-mono);
+    font-size:.75rem;
+    color:var(--teal);
+    display:block;
+    margin-bottom:6px;
+  }
+  .slide.dark .panel .num{ color:var(--amber); }
+  .panel p{ margin:0; font-size:.98rem; }
+
+  ul.list{ list-style:none; margin:0; padding:0; }
+  ul.list li{
+    position:relative;
+    padding-left:22px;
+    margin-bottom:12px;
+    font-size:1.02rem;
+    line-height:1.5;
+    color:var(--ink-soft);
+  }
+  .slide.dark ul.list li{ color:#C7D6DE; }
+  ul.list li::before{
+    content:"";
+    position:absolute; left:0; top:.55em;
+    width:9px; height:9px;
+    border:1.5px solid var(--teal);
+    transform:rotate(45deg);
+  }
+  .slide.dark ul.list li::before{ border-color:var(--amber); }
+
+  /* table for competency translation */
+  .spec-table{ width:100%; border-collapse:collapse; font-size:.96rem; }
+  .spec-table th, .spec-table td{
+    text-align:left; padding:10px 14px; border-bottom:1px solid var(--line); vertical-align:top;
+  }
+  .spec-table th{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.05em; color:var(--teal);
+    font-weight:500; border-bottom:1.5px solid var(--ink);
+  }
+  .spec-table td:first-child{ color:var(--ink); font-weight:500; width:42%; }
+  .spec-table td:last-child{ color:var(--ink-soft); }
+
+  /* step rail for the alignment-cycle slides */
+  .step-frame{ display:flex; gap:clamp(20px,4vw,56px); align-items:flex-start; }
+  .rail{
+    display:flex; flex-direction:column; gap:2px; flex:0 0 auto;
+    font-family:var(--font-mono); font-size:.72rem;
+  }
+  .rail .r-item{
+    padding:9px 12px 9px 0; color:#7C8A94; border-left:2px solid var(--line-deep);
+    padding-left:14px; opacity:.55; transition:opacity .2s;
+  }
+  .rail .r-item.on{ color:var(--amber); border-left-color:var(--amber); opacity:1; font-weight:600; }
+  .step-body{ flex:1 1 auto; min-width:0; }
+
+  /* cycle diagram (svg) */
+  .cycle-wrap{ display:flex; justify-content:center; margin-top:8px; }
+  .cycle-wrap svg{ width:100%; max-width:640px; height:auto; }
+  .cyc-lbl{ font-family:var(--font-mono); font-size:11px; fill:#EAF1F5; }
+  .cyc-num{ font-family:var(--font-display); font-size:15px; font-weight:700; fill:var(--amber); }
+
+  /* nav */
+  .nav{
+    position:fixed; left:0; right:0; bottom:0;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px clamp(18px,4vw,40px);
+    z-index:10;
+    background:linear-gradient(180deg, transparent, rgba(0,0,0,.18) 60%);
+    pointer-events:none;
+  }
+  .nav > *{ pointer-events:auto; }
+  .nav-btns{ display:flex; gap:10px; }
+  .nbtn{
+    width:40px; height:40px;
+    border:1px solid rgba(255,255,255,.5);
+    background:rgba(15,36,56,.55);
+    color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-size:1rem;
+    backdrop-filter:blur(4px);
+    transition:transform .15s ease, background .15s ease;
+  }
+  .nbtn:hover{ background:var(--amber); border-color:var(--amber); color:#1A1000; }
+  .nbtn:active{ transform:scale(.92); }
+  .nbtn[disabled]{ opacity:.3; cursor:default; pointer-events:none; }
+
+  .dots{ display:flex; gap:6px; flex-wrap:wrap; max-width:46vw; justify-content:center; }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(255,255,255,.35);
+    border:none; cursor:pointer; padding:0;
+    transition:background .15s ease, transform .15s ease;
+  }
+  .dot.on{ background:var(--amber); transform:scale(1.35); }
+
+  .counter{
+    font-family:var(--font-mono); font-size:.78rem; color:#EAF1F5;
+    background:rgba(15,36,56,.55); border:1px solid rgba(255,255,255,.35);
+    padding:6px 10px; backdrop-filter:blur(4px);
+  }
+
+  /* progress line */
+  .progress{ position:fixed; top:0; left:0; height:3px; background:var(--amber); z-index:11; transition:width .35s ease; }
+
+  /* cover specifics */
+  .cover-title{ font-size:clamp(2.1rem,5.6vw,4rem); }
+  .cover-meta{ display:flex; gap:26px; flex-wrap:wrap; margin-top:28px; font-family:var(--font-mono); font-size:.85rem; color:#AEC2CC; }
+  .cover-meta b{ color:#EAF1F5; font-weight:500; }
+
+  .quote-mark{ font-family:var(--font-display); font-size:5rem; line-height:.6; color:var(--amber); margin-bottom:6px; }
+  .big-q{ font-family:var(--font-display); font-weight:600; font-size:clamp(1.6rem,3.6vw,2.6rem); line-height:1.25; max-width:900px; }
+
+  /* scroll hint on small screens for overflowing content */
+  ::-webkit-scrollbar{ width:8px; }
+  ::-webkit-scrollbar-thumb{ background:var(--line); }
+
+  @media (max-width:720px){
+    .step-frame{ flex-direction:column; }
+    .rail{ flex-direction:row; overflow-x:auto; gap:0; }
+    .rail .r-item{ border-left:none; border-bottom:2px solid var(--line-deep); padding:8px 12px; white-space:nowrap; }
+    .rail .r-item.on{ border-bottom-color:var(--amber); }
+    .dots{ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress" style="width:0%"></div>
+
+<div class="deck" id="deck">
+
+  <!-- 1: COVER -->
+  <section class="slide dark active" data-title="Cover">
+    <span class="bracket tl"></span><span class="bracket br"></span>
+    <div class="content">
+      <p class="eyebrow pop">MTM 501 &nbsp;·&nbsp; The Role of TVE in Addressing Skills Gaps</p>
+      <h1 class="cover-title pop">Aligning TVE Programs<br>with Industry Needs</h1>
+      <p class="lede pop" style="max-width:640px;">Closing the gap between what Philippine training institutions teach and what Philippine industries actually need.</p>
+      <div class="cover-meta pop">
+        <span>Topic &nbsp;<b>Skills Gaps in the Philippine Workforce</b></span>
+        <span>Prepared by &nbsp;<b>Benz A. Lozada</b></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2: LEARNING OUTCOMES -->
+  <section class="slide" data-title="Learning Outcomes">
+    <div class="content">
+      <p class="eyebrow pop">Learning outcomes</p>
+      <h2 class="pop">By the end of this discussion, you should be able to</h2>
+      <div class="grid cols-2">
+        <div class="panel pop"><span class="num">01</span><p>Explain the meaning of industry-aligned TVE.</p></div>
+        <div class="panel pop"><span class="num">02</span><p>Identify possible causes of skills mismatch.</p></div>
+        <div class="panel pop"><span class="num">03</span><p>Design strategies for aligning a TVE program with industry needs.</p></div>
+        <div class="panel pop"><span class="num">04</span><p>Propose indicators for evaluating whether a program is truly responsive to employers.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3: OPENING QUESTION -->
+  <section class="slide dark" data-title="Guiding Question">
+    <span class="bracket tl"></span><span class="bracket br"></span>
+    <div class="content">
+      <span class="quote-mark pop">?</span>
+      <p class="big-q pop">Are our TVE programs teaching the skills that Philippine industries actually need?</p>
+      <p class="pop" style="margin-top:22px; max-width:640px;">Keep this question in mind — every idea in this lesson is really an attempt to answer it.</p>
+    </div>
+  </section>
+
+  <!-- 4: WHAT IS ALIGNMENT -->
+  <section class="slide" data-title="What Is Industry Alignment">
+    <div class="content">
+      <p class="eyebrow pop">Defining the concept</p>
+      <h2 class="pop">What is industry alignment?</h2>
+      <p class="lede pop">Industry alignment is the process of ensuring a TVE program develops the knowledge, skills, attitudes, and work habits required in actual workplaces.</p>
+      <hr class="rule">
+      <p class="pop">A program is aligned when graduates can transfer what they learned in school to actual work situations. In the Philippine context, training&ndash;job mismatch can occur when course offerings, curricula, equipment, and training methods fail to keep pace with employer demand &mdash; which is why industry participation matters across curriculum development, training delivery, assessment, and certification.</p>
+    </div>
+  </section>
+
+  <!-- 5: WHY ALIGNMENT MATTERS -->
+  <section class="slide" data-title="Why Alignment Matters">
+    <div class="content">
+      <p class="eyebrow pop">Why it matters</p>
+      <h2 class="pop">Without alignment, graduates hold certificates &mdash; not capability</h2>
+      <div class="grid cols-3">
+        <div class="panel pop"><p>Outdated tools, machines, software, and equipment.</p></div>
+        <div class="panel pop"><p>Training content that no longer reflects current workplace procedures.</p></div>
+        <div class="panel pop"><p>Too much theory, not enough hands-on practice.</p></div>
+        <div class="panel pop"><p>Inadequate workplace exposure.</p></div>
+        <div class="panel pop"><p>Assessments that test memory instead of actual performance.</p></div>
+        <div class="panel pop"><p>Weak communication, teamwork, problem-solving, and digital skills.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6: TESDA / ENTERPRISE-BASED TRAINING -->
+  <section class="slide dark" data-title="TESDA & Enterprise-Based Training">
+    <span class="bracket tl"></span><span class="bracket br"></span>
+    <div class="content">
+      <p class="eyebrow pop">Policy context</p>
+      <h2 class="pop">TESDA's push for stronger industry involvement</h2>
+      <p class="lede pop" style="max-width:760px;">TESDA has emphasized deeper industry involvement in competency standards, training regulations, enterprise-based training, and assessment.</p>
+      <div class="panel pop" style="margin-top:18px; max-width:700px; border-color:var(--amber);">
+        <span class="mono-tag">Enterprise-based training</span>
+        <p style="margin-top:10px;">Learners study institutional concepts while applying them directly in a company setting &mdash; putting the workplace inside the curriculum, not just at the end of it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7: THE ALIGNMENT CYCLE OVERVIEW -->
+  <section class="slide dark" data-title="The Alignment Cycle">
+    <div class="content">
+      <p class="eyebrow pop">Framework</p>
+      <h2 class="pop">The alignment cycle</h2>
+      <p class="pop" style="max-width:680px;">Seven steps, continuously repeating &mdash; because alignment is never finished once the curriculum is written.</p>
+      <div class="cycle-wrap pop" id="cycleSvgHolder"></div>
+    </div>
+  </section>
+
+  <!-- 8: STEP 1 -->
+  <section class="slide" data-title="Step 1">
+    <div class="content">
+      <p class="eyebrow pop">Step 1 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="1"></div>
+        <div class="step-body pop">
+          <h2>Identify industry demand</h2>
+          <p>Alignment starts by gathering real signal from the labor market, not assumptions.</p>
+          <ul class="list">
+            <li>Local employers and industry associations</li>
+            <li>Job advertisements and labor-market studies</li>
+            <li>Professional organizations and government employment data</li>
+            <li>Alumni and graduate employment records</li>
+            <li>Industry advisory boards</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9: STEP 2 -->
+  <section class="slide" data-title="Step 2">
+    <div class="content">
+      <p class="eyebrow pop">Step 2 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="2"></div>
+        <div class="step-body pop">
+          <h2>Translate demand into competencies</h2>
+          <p>Industry needs must become clear, observable learning outcomes &mdash; not vague statements like "understand technology."</p>
+          <table class="spec-table">
+            <thead><tr><th>Industry requirement</th><th>TVE competency</th></tr></thead>
+            <tbody>
+              <tr><td>Operate computerized equipment</td><td>Set up, operate, and troubleshoot equipment safely</td></tr>
+              <tr><td>Prepare digital reports</td><td>Create accurate reports using appropriate software</td></tr>
+              <tr><td>Follow workplace safety rules</td><td>Apply occupational safety and health procedures</td></tr>
+              <tr><td>Work with clients</td><td>Demonstrate professional communication and customer service</td></tr>
+              <tr><td>Solve equipment problems</td><td>Diagnose faults and apply corrective procedures</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10: STEP 3 -->
+  <section class="slide" data-title="Step 3">
+    <div class="content">
+      <p class="eyebrow pop">Step 3 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="3"></div>
+        <div class="step-body pop">
+          <h2>Align the curriculum</h2>
+          <p>The curriculum is built around units of competency, shaped directly by industry input.</p>
+          <ul class="list">
+            <li>Current occupational standards</li>
+            <li>Industry processes and workflows</li>
+            <li>Required technical skills and workplace safety requirements</li>
+            <li>Digital and technological developments</li>
+            <li>Professional and ethical expectations</li>
+            <li>Local and regional employment opportunities</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11: STEP 4 -->
+  <section class="slide" data-title="Step 4">
+    <div class="content">
+      <p class="eyebrow pop">Step 4 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="4"></div>
+        <div class="step-body pop">
+          <h2>Align learning resources and facilities</h2>
+          <p>A program can't claim to be industry-aligned if learners train only on obsolete or unavailable equipment.</p>
+          <ul class="list">
+            <li>Machines, tools, and consumable materials</li>
+            <li>Software and digital platforms</li>
+            <li>Workshop layout and simulation facilities</li>
+            <li>Safety devices and internet connectivity</li>
+            <li>Maintenance and replacement schedules</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 12: STEP 5 -->
+  <section class="slide" data-title="Step 5">
+    <div class="content">
+      <p class="eyebrow pop">Step 5 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="5"></div>
+        <div class="step-body pop">
+          <h2>Align teaching and learning activities</h2>
+          <p>Teaching should reflect how work is actually performed in industry.</p>
+          <ul class="list">
+            <li>Demonstration and return demonstration</li>
+            <li>Project- and problem-based learning</li>
+            <li>Simulated and production-based workplace tasks</li>
+            <li>Industry visits and guest lectures by practitioners</li>
+            <li>Apprenticeships, internships, and enterprise-based training</li>
+          </ul>
+          <div class="panel pop" style="margin-top:6px; border-color:var(--teal);">
+            <p style="margin:0;">Every activity should answer one question: <em>what workplace task will the student be able to perform after this?</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 13: STEP 6 -->
+  <section class="slide" data-title="Step 6">
+    <div class="content">
+      <p class="eyebrow pop">Step 6 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="6"></div>
+        <div class="step-body pop">
+          <h2>Align assessment</h2>
+          <p>Assessment should measure authentic performance, not only written knowledge.</p>
+          <ul class="list">
+            <li>Practical demonstrations and performance tasks</li>
+            <li>Portfolio assessment and product evaluation</li>
+            <li>Workplace observation and troubleshooting activities</li>
+            <li>Client-service simulations and oral questioning</li>
+            <li>Industry-based assessment</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14: STEP 7 -->
+  <section class="slide" data-title="Step 7">
+    <div class="content">
+      <p class="eyebrow pop">Step 7 of 7</p>
+      <div class="step-frame">
+        <div class="rail pop" data-rail="7"></div>
+        <div class="step-body pop">
+          <h2>Obtain employer feedback</h2>
+          <p>Alignment isn't finished when the curriculum is written &mdash; the institution should keep asking:</p>
+          <ul class="list">
+            <li>Are our graduates employable, and performing the required tasks?</li>
+            <li>Which skills are still weak?</li>
+            <li>What technologies or procedures have changed?</li>
+            <li>Which competencies should be added, revised, or removed?</li>
+          </ul>
+          <div class="panel pop" style="margin-top:6px; border-color:var(--amber);">
+            <p style="margin:0;">This creates a feedback loop between school and industry &mdash; which feeds straight back into Step 1.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 15: CLOSING QUOTE -->
+  <section class="slide dark" data-title="Takeaway">
+    <span class="bracket tl"></span><span class="bracket br"></span>
+    <div class="content">
+      <span class="quote-mark pop">&ldquo;</span>
+      <p class="big-q pop">An industry-aligned TVE program is not simply a program that offers employment-related subjects. It is a continuously updated system in which industry helps define the competencies, learning experiences, equipment, assessment methods, and graduate outcomes.</p>
+    </div>
+  </section>
+
+  <!-- 16: SOURCES -->
+  <section class="slide" data-title="Sources">
+    <div class="content">
+      <p class="eyebrow pop">Sources</p>
+      <h2 class="pop">References</h2>
+      <ul class="list pop">
+        <li>TESDA TVET Glossary &mdash; definition of competency-based curriculum and industry consultation.</li>
+        <li>Republic Act No. 12063 &mdash; legal basis for industry-driven and enterprise-based training.</li>
+        <li>IRR of Republic Act No. 12063 &mdash; specific responsibilities of industry boards.</li>
+        <li>ADB Industry 4.0 report &mdash; evidence of training&ndash;job mismatch and the need for curriculum modernization.</li>
+        <li>PIDS TVET employment study &mdash; Philippine evidence on mismatch, employer participation, and employment outcomes.</li>
+      </ul>
+    </div>
+  </section>
+
+</div>
+
+<div class="nav">
+  <div class="nav-btns">
+    <button class="nbtn" id="prevBtn" aria-label="Previous slide">&#8592;</button>
+    <button class="nbtn" id="nextBtn" aria-label="Next slide">&#8594;</button>
+  </div>
+  <div class="dots" id="dots"></div>
+  <div class="counter" id="counter">01 / 16</div>
+</div>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var total = slides.length;
+  var idx = 0;
+
+  var dotsEl = document.getElementById('dots');
+  slides.forEach(function(s, i){
+    var d = document.createElement('button');
+    d.className = 'dot' + (i===0 ? ' on' : '');
+    d.setAttribute('aria-label', 'Go to slide ' + (i+1));
+    d.addEventListener('click', function(){ goTo(i); });
+    dotsEl.appendChild(d);
+  });
+  var dots = Array.prototype.slice.call(dotsEl.children);
+
+  var counterEl = document.getElementById('counter');
+  var progressEl = document.getElementById('progress');
+  var prevBtn = document.getElementById('prevBtn');
+  var nextBtn = document.getElementById('nextBtn');
+
+  function pad(n){ return n < 10 ? '0'+n : ''+n; }
+
+  function render(){
+    slides.forEach(function(s, i){
+      s.classList.toggle('active', i === idx);
+    });
+    dots.forEach(function(d, i){ d.classList.toggle('on', i === idx); });
+    counterEl.textContent = pad(idx+1) + ' / ' + pad(total);
+    progressEl.style.width = (((idx+1)/total)*100) + '%';
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === total-1;
+  }
+
+  function goTo(i){
+    idx = Math.max(0, Math.min(total-1, i));
+    render();
+  }
+  function next(){ goTo(idx+1); }
+  function prev(){ goTo(idx-1); }
+
+  prevBtn.addEventListener('click', prev);
+  nextBtn.addEventListener('click', next);
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowRight' || e.key === 'PageDown'){ next(); }
+    else if(e.key === 'ArrowLeft' || e.key === 'PageUp'){ prev(); }
+    else if(e.key === 'Home'){ goTo(0); }
+    else if(e.key === 'End'){ goTo(total-1); }
+  });
+
+  // touch swipe
+  var touchStartX = null;
+  document.addEventListener('touchstart', function(e){ touchStartX = e.touches[0].clientX; }, {passive:true});
+  document.addEventListener('touchend', function(e){
+    if(touchStartX === null) return;
+    var dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 50){ dx < 0 ? next() : prev(); }
+    touchStartX = null;
+  }, {passive:true});
+
+  // build the step rail on step slides (1-7)
+  document.querySelectorAll('[data-rail]').forEach(function(rail){
+    var current = parseInt(rail.getAttribute('data-rail'), 10);
+    var labels = ['Identify demand','Translate to competencies','Align curriculum','Align resources','Align activities','Align assessment','Employer feedback'];
+    labels.forEach(function(lbl, i){
+      var step = i+1;
+      var item = document.createElement('div');
+      item.className = 'r-item' + (step === current ? ' on' : '');
+      item.textContent = pad(step) + ' — ' + lbl;
+      rail.appendChild(item);
+    });
+  });
+
+  // build the cycle SVG (steps 1-7 arranged in a circle, connected by arrows)
+  (function buildCycle(){
+    var holder = document.getElementById('cycleSvgHolder');
+    if(!holder) return;
+    var labels = ['Identify\ndemand','Translate to\ncompetencies','Align\ncurriculum','Align\nresources','Align\nactivities','Align\nassessment','Employer\nfeedback'];
+    var cx = 300, cy = 280, r = 190;
+    var n = labels.length;
+    var svgNS = 'http://www.w3.org/2000/svg';
+    var svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', '0 0 600 560');
+
+    var defs = document.createElementNS(svgNS, 'defs');
+    var marker = document.createElementNS(svgNS, 'marker');
+    marker.setAttribute('id', 'arrowHead');
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '8');
+    marker.setAttribute('refX', '6');
+    marker.setAttribute('refY', '3');
+    marker.setAttribute('orient', 'auto');
+    var mpath = document.createElementNS(svgNS, 'path');
+    mpath.setAttribute('d', 'M0,0 L6,3 L0,6 Z');
+    mpath.setAttribute('fill', '#E0932D');
+    marker.appendChild(mpath);
+    defs.appendChild(marker);
+    svg.appendChild(defs);
+
+    var pts = [];
+    for(var i=0;i<n;i++){
+      var angle = (Math.PI*2*i/n) - Math.PI/2;
+      pts.push({ x: cx + r*Math.cos(angle), y: cy + r*Math.sin(angle) });
+    }
+
+    // connecting arc segments
+    for(var i=0;i<n;i++){
+      var a = pts[i], b = pts[(i+1)%n];
+      var mx = cx + (r-34)*Math.cos((Math.PI*2*(i+0.5)/n)-Math.PI/2);
+      var my = cy + (r-34)*Math.sin((Math.PI*2*(i+0.5)/n)-Math.PI/2);
+      var path = document.createElementNS(svgNS, 'path');
+      var d = 'M '+a.x+' '+a.y+' Q '+mx+' '+my+' '+b.x+' '+b.y;
+      path.setAttribute('d', d);
+      path.setAttribute('fill', 'none');
+      path.setAttribute('stroke', 'rgba(234,241,245,0.35)');
+      path.setAttribute('stroke-width', '1.5');
+      path.setAttribute('marker-end', 'url(#arrowHead)');
+      svg.appendChild(path);
+    }
+
+    // nodes
+    for(var i=0;i<n;i++){
+      var p = pts[i];
+      var g = document.createElementNS(svgNS, 'g');
+
+      var circle = document.createElementNS(svgNS, 'circle');
+      circle.setAttribute('cx', p.x); circle.setAttribute('cy', p.y);
+      circle.setAttribute('r', 34);
+      circle.setAttribute('fill', '#132C43');
+      circle.setAttribute('stroke', '#E0932D');
+      circle.setAttribute('stroke-width', '1.5');
+      g.appendChild(circle);
+
+      var num = document.createElementNS(svgNS, 'text');
+      num.setAttribute('x', p.x); num.setAttribute('y', p.y-2);
+      num.setAttribute('text-anchor', 'middle');
+      num.setAttribute('class', 'cyc-num');
+      num.textContent = pad(i+1);
+      g.appendChild(num);
+
+      var lines = labels[i].split('\n');
+      lines.forEach(function(line, li){
+        var t = document.createElementNS(svgNS, 'text');
+        t.setAttribute('x', p.x);
+        t.setAttribute('y', p.y + 48 + (li*13));
+        t.setAttribute('text-anchor', 'middle');
+        t.setAttribute('class', 'cyc-lbl');
+        t.textContent = line;
+        g.appendChild(t);
+      });
+
+      svg.appendChild(g);
+    }
+
+    // center label
+    var centerText = document.createElementNS(svgNS, 'text');
+    centerText.setAttribute('x', cx); centerText.setAttribute('y', cy-4);
+    centerText.setAttribute('text-anchor', 'middle');
+    centerText.setAttribute('fill', 'rgba(234,241,245,0.55)');
+    centerText.setAttribute('font-family', 'IBM Plex Mono, monospace');
+    centerText.setAttribute('font-size', '11');
+    centerText.textContent = 'CONTINUOUS';
+    svg.appendChild(centerText);
+    var centerText2 = document.createElementNS(svgNS, 'text');
+    centerText2.setAttribute('x', cx); centerText2.setAttribute('y', cy+12);
+    centerText2.setAttribute('text-anchor', 'middle');
+    centerText2.setAttribute('fill', 'rgba(234,241,245,0.55)');
+    centerText2.setAttribute('font-family', 'IBM Plex Mono, monospace');
+    centerText2.setAttribute('font-size', '11');
+    centerText2.textContent = 'CYCLE';
+    svg.appendChild(centerText2);
+
+    holder.appendChild(svg);
+  })();
+
+  render();
+})();
+</script>
+</body>
+</html>
